@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/api/fbs/**")).permitAll()
+                                //.requestMatchers(new AntPathRequestMatcher("/api/auth/**", "/api/auth/**")).permitAll()
                         .anyRequest().authenticated()                 // All other APIs require token
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -60,6 +61,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/fbs/**").permitAll()
+                .antMatchers("/api/auth/**", "/api/auth/**").permitAll()
                 .anyRequest().authenticated()             // All other endpoints need authentication
                 .and()
                 .logout()

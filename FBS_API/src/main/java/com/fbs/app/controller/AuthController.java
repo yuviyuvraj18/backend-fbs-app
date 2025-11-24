@@ -1,12 +1,16 @@
 package com.fbs.app.controller;
 
+import com.fbs.app.dto.EmailRequestDto;
+import com.fbs.app.dto.ResetRequestDto;
 import com.fbs.app.dto.UserRequestDto;
 import com.fbs.app.model.Role;
 import com.fbs.app.model.UserModel;
 import com.fbs.app.repository.UserRepository;
+import com.fbs.app.service.PasswordResetService;
 import com.fbs.app.service.TokenService;
 import com.fbs.app.utils.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +36,35 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+
+    @Autowired
+    private PasswordResetService passwordResetService;
+
+
+    @PostMapping("/forgot")
+    public ResponseEntity<?> forgotPassword(@RequestBody EmailRequestDto request) {
+        passwordResetService.sendOtp(request.getEmail());
+        return ResponseEntity.ok().body("OTP sent to email");
+    }
+
+
+    @PostMapping("/reset")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetRequestDto request) {
+        passwordResetService.resetPassword(request.getEmail(), request.getOtp(), request.getNewpassword());
+        return ResponseEntity.ok().body("Password reset successfully");
+    }
+
+
+    @Data
+    static class EmailRequest { private String email; }
+
+
+    @Data
+    static class ResetRequest { private String email; private String otp; private String newPassword; }
+
+
+
 
     // ============================
     // REGISTER USER
