@@ -2,18 +2,17 @@ package com.fbs.app.controller;
 
 import com.fbs.app.model.UserModel;
 import com.fbs.app.repository.UserRepository;
+import com.fbs.app.service.ProfileService;
 import com.fbs.app.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/fbs")
 public class ProfileController {
 
     @Autowired
@@ -21,26 +20,56 @@ public class ProfileController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ProfileService profileService;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getProfile(@RequestHeader("Authorization") String authHeader) {
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body(Map.of("error","Missing token"));
-        }
+        return ResponseEntity.ok(profileService.getProfile(authHeader));
 
-        String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
-
-        UserModel user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return ResponseEntity.ok(Map.of(
-                "id", user.getId(),
-                "name", user.getUserName(),
-                "email", user.getEmail(),
-                "roles", user.getRoles()
-        ));
     }
+
+
+    // ============== UPDATE PROFILE (name, phone) ===============
+    @PutMapping("/profile/update")
+    public ResponseEntity<?> updateProfile(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody UserModel updatedUser) {
+
+        if (authHeader == null) {
+            throw new RuntimeException("Authorization header missing!");
+        }
+        System.out.println("controller===========>>>>" +authHeader);
+
+        return
+                ResponseEntity.ok(profileService.updateProfile(authHeader, updatedUser));
+    }
+
+
+    // ============== CHANGE PASSWORD ===============
+    @PutMapping("/profile/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> reqBody) {
+
+        return ResponseEntity.ok(profileService.changePassword(authHeader, reqBody));
+
+    }
+
+
+    // ============== UPLOAD PROFILE IMAGE ===============
+    @PostMapping("/profile/upload-image")
+    public ResponseEntity<?> uploadImage(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam("file") MultipartFile file) throws Exception {
+
+        return ResponseEntity.ok(profileService.uploadProfileImage(authHeader, file));
+
+    }
+
 }
 

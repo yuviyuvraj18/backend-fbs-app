@@ -57,6 +57,7 @@ public class SecurityConfig {
 
     protected void configure(HttpSecurity http) throws Exception {
         http
+
                 .csrf().disable() // Disable CSRF for REST APIs
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
@@ -70,9 +71,15 @@ public class SecurityConfig {
                 .permitAll();
     }
 
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//
+//        return new BCryptPasswordEncoder(); // Secure password hashing
+//    }
+
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Secure password hashing
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

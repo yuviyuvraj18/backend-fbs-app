@@ -40,10 +40,11 @@ public class JwtUtil {
     // -------------------------------
     // 2) Generate Access Token
     // -------------------------------
-    public String generateAccessToken(String email, List<String> roles) {
+    public String generateAccessToken(String email, List<String> roles, Long userId) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("roles", roles) // store roles
+                .claim("userId", userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -93,6 +94,11 @@ public class JwtUtil {
         final Date expiration = extractExpiration(token);
         return expiration.before(new Date());
 
+    }
+
+    public Long extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return Long.parseLong(claims.get("userId").toString());
     }
 
     // -------------------------------

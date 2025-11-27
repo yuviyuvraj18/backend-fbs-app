@@ -107,7 +107,7 @@ public class AuthController {
                 .map(Role::name)     // convert ENUM to string like "ROLE_ADMIN"
                 .collect(Collectors.toList());;
 
-        String accessToken = jwtUtil.generateAccessToken(existing.getEmail() , roleNames );
+        String accessToken = jwtUtil.generateAccessToken(existing.getEmail() , roleNames , existing.getId());
 
       //  System.out.println(accessToken);
         // RefreshToken (long-lived)
@@ -152,7 +152,7 @@ public class AuthController {
                 .map(Role::name)
                 .collect(Collectors.toList());
 
-        String newAccessToken = jwtUtil.generateAccessToken(existing.getEmail(), roleNames);
+        String newAccessToken = jwtUtil.generateAccessToken(existing.getEmail(), roleNames, existing.getId());
 
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
